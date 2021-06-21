@@ -1,0 +1,13 @@
+body{
+    padding: 0;
+    margin: 0;
+}
+
+.card{
+    border: none;
+}
+.card-body{
+background: rgba(207, 206, 206, 0.644);
+}
+.deem{
+    background: url(../travel\ wahala/assets/images/);

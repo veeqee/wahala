@@ -1,0 +1,268 @@
+function setFDAFwebsiteCookie() {
+	console.log('FDAF-Attribution-05262021');
+    //adding support for fdguid
+    try{
+        var url = window.location.search.toLowerCase();
+        if(url.indexOf('?') !== -1 && (getParameterByName("leadsource", url) || getParameterByName("fdguid", url))){
+            var fdguid = "";
+            if(getParameterByName("fdguid", url)){
+                fdguid = getParameterByName("fdguid", window.location.search);
+                createCookie("mt-attr-val", fdguid, "365");
+            }
+            var cid = "";
+            var t3c = getCookie("mt-attr-detail");
+//            console.log(t3c);
+            if(t3c == null || t3c == ""){
+                if(localStorage.getItem('mt-attr-detail') && localStorage.getItem('mt-attr-detail') != null && localStorage.getItem('mt-attr-detail') != ''){
+                    cid = localStorage.getItem('mt-attr-detail');
+                    if(fdguid != "" && fdguid != cid){
+                        // Get data from last cookie
+                        try{
+                        localStorage.setItem('mt-attr-detail', fdguid);
+                        console.log("Retrieving FDAF Cookie from cloud");
+                        var x = new XMLHttpRequest();
+                        var cookieVal = "";
+                        var url = "https://creativesham.table.core.windows.net/t3WebsiteCookie(PartitionKey='bfn',RowKey='"+cid+"')?sv=2019-02-02&ss=t&srt=sco&sp=rwlacu&se=2040-04-15T23:05:22Z&st=2020-04-15T15:05:22Z&spr=https&sig=dZTX%2BVXxSU3G1Ks2FplxT0frXYFjSaBsQz8W61UbeLg%3D";
+                        x.open('GET', url);
+
+                        x.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                        x.onload = function () {
+                            xmlDoc = x.responseXML;
+                            var cookieValue = xmlDoc.getElementsByTagName("d:cookieValue");
+                            if (cookieValue && cookieValue != null && cookieValue != '' && cookieValue.item(0) != null){
+                                cookieVal = cookieValue.item(0).innerHTML;
+                            }
+                            dropFDAFAttributionCookie(fdguid,cookieVal);
+                        };
+                        x.send();
+                        }catch(err){
+                            console.log('Nothing can go wrong:'+err);
+                        }
+                    }else{
+                        var cook = getCookieFromCloud(cid);
+                    }
+                    
+                }else{
+                    if(fdguid != "")
+                    {
+                        cid = fdguid;
+                    }else{
+                        cid = guid();
+                    }
+                    localStorage.setItem('mt-attr-detail', cid);
+                    var cookieV = "";
+                    dropFDAFAttributionCookie(cid, cookieV);
+                }
+            }else{
+                t3c = decodeURIComponent(t3c);
+                cid = t3c.substring(t3c.indexOf('<cookieguid>')+12, t3c.indexOf('</cookieguid>'));
+                if(fdguid != "" && fdguid != cid){
+                    // Get data from last cookie
+                    try{
+                    localStorage.setItem('mt-attr-detail', fdguid);
+                    console.log("Retrieving FDAF Cookie from cloud");
+                    var x = new XMLHttpRequest();
+                    var cookieVal = "";
+                    var url = "https://creativesham.table.core.windows.net/t3WebsiteCookie(PartitionKey='bfn',RowKey='"+cid+"')?sv=2019-02-02&ss=t&srt=sco&sp=rwlacu&se=2040-04-15T23:05:22Z&st=2020-04-15T15:05:22Z&spr=https&sig=dZTX%2BVXxSU3G1Ks2FplxT0frXYFjSaBsQz8W61UbeLg%3D";
+                    x.open('GET', url);
+
+                    x.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                    x.onload = function () {
+                        xmlDoc = x.responseXML;
+                        var cookieValue = xmlDoc.getElementsByTagName("d:cookieValue");
+                        if (cookieValue && cookieValue != null && cookieValue != '' && cookieValue.item(0) != null){
+                            cookieVal = cookieValue.item(0).innerHTML;
+                        }
+                        dropFDAFAttributionCookie(fdguid,cookieVal);
+                    };
+                    x.send();
+                    }catch(err){
+                        console.log('Nothing can go wrong:'+err);
+                    }
+                }else{
+                    localStorage.setItem('mt-attr-detail', cid);
+                    var cook = getCookieFromCloud(cid);
+                }
+                
+            }
+        }
+    }catch(err){
+        console.log('something is not right:'+err);
+    }
+}
+    
+    function dropFDAFAttributionCookie(cid, cookieV){
+        try{    
+            var url = window.location.search.toLowerCase();
+            console.log('p.cookie....');
+
+           var timestamp = new Date();
+           timestamp = timestamp.toISOString();
+		   var mcmid = "";
+           var fdguid = getParameterByName("fdguid", window.location.search);
+           
+           var leadsource = getParameterByName("leadsource", url);
+		   if(leadsource){
+			   leadsource = leadsource.replace(/&/g, "&amp;");
+			   if(leadsource.toLowerCase().startsWith("fdaf")){
+					mcmid = "FDAF";
+				}
+		   }
+           var leadsourceid = getParameterByName("leadsourceid", url);
+		   if(leadsourceid){
+			   leadsourceid = leadsourceid.replace(/&/g, "&amp;");
+		   }
+           var altleadsource = getParameterByName("altleadsource", url);
+		   if(altleadsource){
+			   altleadsource = altleadsource.replace(/&/g, "&amp;");
+		   }
+		   var intcmp = "";
+		   if(url.indexOf('?') !== -1 && getParameterByName("intcmp", url)){
+				intcmp = getParameterByName("intcmp", window.location.search);
+			}
+           
+		   var campaignid = "";
+		var siteid = "";
+		var placementid = "";
+		var creativeid = "";
+		var keywordid = "";
+		var adid = "";
+		var dstargetid = "";
+		var bannerid = getParameterByName("bannerid", url);
+		var searchid = getParameterByName("searchid", url);
+		var emailid = getParameterByName("emailid", url);
+		var channel = getParameterByName("channel", url);
+		var gclid = getParameterByName("gclid", url);
+
+		if(bannerid && bannerid != null){
+           var res = bannerid.split("|");
+           campaignid = res[0];
+           siteid = res[1];
+           placementid = res[2];
+           creativeid = res[3];
+           adid = res[4];
+       }else if(searchid && searchid != null){
+            var search = searchid.split("|");
+            campaignid = search[0];
+            keywordid = search[1];                               
+       }
+
+
+           cookieVal = "<campaigndetail><cookieguid>"+cid+"</cookieguid><fdguid>"+fdguid+"</fdguid><mcmid>"+mcmid+"</mcmid><campaignid>"+campaignid+"</campaignid><channel>"+channel+"</channel><siteid>"+siteid+"</siteid><placementid>"+placementid+"</placementid><creativeid>"+creativeid+"</creativeid><adid>"+adid+"</adid><keywordid>"+keywordid+"</keywordid><emailid>"+emailid+"</emailid><gclid>"+gclid+"</gclid><dstargetid>"+dstargetid+"</dstargetid><leadsource>"+leadsource+"</leadsource><leadsourceid>"+leadsourceid+"</leadsourceid><altleadsource>"+altleadsource+"</altleadsource><intcmp>"+intcmp+"</intcmp><timestamp>"+timestamp+"</timestamp></campaigndetail>";
+            cookieVal = encodeURIComponent(cookieVal);
+            createCookie("mt-attr-detail", cookieVal, "365"); 
+			createCookie("mt-attr-val", cid, "365"); 
+
+            cookieVal = cookieVal+cookieV;
+            if(cookieV == null || cookieV == ""){
+                setCookieInCloud(cid,cookieVal);
+ //               console.log('Everyone loves cookies...');
+            }else{
+                updateCookieInCloud(cid,cookieVal);
+ //               console.log('We can have more cookies...');
+
+            }
+        }catch(err){
+            console.log('what can go wrong:'+err);
+        }
+    }
+
+
+function getParameterByName(name, url) {
+    if (!url) url = window.location.search.toLowerCase();
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+function createCookie(name, value, days) {
+    var expires;
+	var domain = ";domain=.ford.com";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toGMTString();
+    }
+    else {
+        expires = "";
+    }
+    document.cookie = name + "=" + value + expires + domain + "; path=/";
+}
+
+function getCookie(name) {
+    if(name){
+        var value = "; " + document.cookie;
+        var parts = value.split("; " + name + "=");
+        if (parts.length == 2) return parts.pop().split(";").shift();
+    }else{
+        return '';
+    }
+}
+
+
+function guid() {
+  return "SH-FDAF-"+ s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
+
+function s4() {
+  return Math.floor((1 + Math.random()) * 0x10000)
+    .toString(16)
+    .substring(1);
+}
+
+function getCookieFromCloud(cid) {
+    try{
+//    console.log("Retrieving FDAF Cookie from cloud");
+    var x = new XMLHttpRequest();
+    var cookieVal = "";
+    var url = "https://creativesham.table.core.windows.net/t3WebsiteCookie(PartitionKey='fdaf',RowKey='"+cid+"')?sv=2019-02-02&ss=t&srt=sco&sp=rwlacu&se=2040-04-15T23:05:22Z&st=2020-04-15T15:05:22Z&spr=https&sig=dZTX%2BVXxSU3G1Ks2FplxT0frXYFjSaBsQz8W61UbeLg%3D";
+    x.open('GET', url);
+
+    x.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    x.onload = function () {
+        xmlDoc = x.responseXML;
+        var cookieValue = xmlDoc.getElementsByTagName("d:cookieValue");
+        if (cookieValue && cookieValue != null && cookieValue != '' && cookieValue.item(0) != null){
+            cookieVal = cookieValue.item(0).innerHTML;
+        }
+        dropFDAFAttributionCookie(cid,cookieVal);
+    };
+    x.send();
+    }catch(err){
+        console.log('Nothing can go wrong:'+err);
+    }
+}
+    
+function setCookieInCloud(cid,cookieVal){
+    try{
+    var x = new XMLHttpRequest();
+    var url = "https://creativesham.table.core.windows.net/t3WebsiteCookie?sv=2019-02-02&ss=t&srt=sco&sp=rwlacu&se=2040-04-15T23:05:22Z&st=2020-04-15T15:05:22Z&spr=https&sig=dZTX%2BVXxSU3G1Ks2FplxT0frXYFjSaBsQz8W61UbeLg%3D";
+    x.open('POST', url);
+    x.setRequestHeader('Content-Type', 'application/json');
+    x.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    var cookie = "{\"cookieValue\":\""+cookieVal+"\",\"PartitionKey\": \"fdaf\",\"RowKey\": \""+cid+"\"}";
+    x.send(cookie);
+    }catch(err){
+        console.log('what can go wrong in setting:'+err);
+    }
+}
+    
+function updateCookieInCloud(cid,cookieVal){
+    try{
+    var x = new XMLHttpRequest();
+    var url = "https://creativesham.table.core.windows.net/t3WebsiteCookie(PartitionKey='fdaf',RowKey='"+cid+"')?sv=2019-02-02&ss=t&srt=sco&sp=rwlacu&se=2040-04-15T23:05:22Z&st=2020-04-15T15:05:22Z&spr=https&sig=dZTX%2BVXxSU3G1Ks2FplxT0frXYFjSaBsQz8W61UbeLg%3D";
+    x.open('PUT', url);
+
+    x.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    x.setRequestHeader('Content-Type', 'application/json');
+    var cookie = "{\"cookieValue\":\""+cookieVal+"\",\"PartitionKey\": \"fdaf\",\"RowKey\": \""+cid+"\"}";
+    x.send(cookie);
+    }catch(err){
+        console.log('what can go wrong with update:'+err);
+    }
+}
+setFDAFwebsiteCookie();
